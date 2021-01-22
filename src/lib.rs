@@ -47,7 +47,7 @@ pub fn run(img: DynamicImage, options: ProgramOptions) -> String {
             let canny = edge_detection::canny(
                 img.as_luma8().cloned().unwrap(),
                 sigma,
-                (1.0 + threshold) / 2.0, // doesn't actually matter, just bigger than strong
+                (1.0 + threshold) / 2.0, // doesn't actually matter, just weak < strong < 1
                 threshold,
             )
             .as_image();

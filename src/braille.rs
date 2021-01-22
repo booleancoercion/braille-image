@@ -9,14 +9,6 @@ pub struct BasicMatrix<T> {
 }
 
 impl<T> BasicMatrix<T> {
-    pub fn _new(vec: Vec<T>, m: usize, n: usize) -> Result<BasicMatrix<T>> {
-        if vec.len() != m * n || vec.is_empty() {
-            bail!("Invalid matrix size provided: {}x{}", m, n);
-        } else {
-            Ok(BasicMatrix { vec, m, n })
-        }
-    }
-
     pub fn generate(
         m: usize,
         n: usize,
@@ -33,22 +25,6 @@ impl<T> BasicMatrix<T> {
             }
 
             Ok(BasicMatrix { vec, m, n })
-        }
-    }
-
-    pub fn _get(&self, i: usize, j: usize) -> Result<&T> {
-        if i >= self.m || j >= self.n {
-            bail!("Invalid matrix indices: ({}, {})", i, j);
-        } else {
-            Ok(&self[(i, j)])
-        }
-    }
-
-    pub fn _get_mut(&mut self, i: usize, j: usize) -> Result<&mut T> {
-        if i >= self.m || j >= self.n {
-            bail!("Invalid matrix indices: ({}, {})", i, j);
-        } else {
-            Ok(&mut self[(i, j)])
         }
     }
 
