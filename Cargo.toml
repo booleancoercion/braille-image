@@ -1,6 +1,6 @@
 [package]
 name = "braille-image"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["boolean_coercion <booleancoercion@gmail.com>"]
 edition = "2018"
 
@@ -8,5 +8,6 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0.38"
-clap = "2.33.3"
+clap = "3.0.0-beta.2"
+edge-detection = "0.2.5"
 image = "0.23.12"

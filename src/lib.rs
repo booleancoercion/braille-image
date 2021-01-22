@@ -11,17 +11,61 @@ use std::path::Path;
 mod braille;
 use braille::*;
 
-pub fn run(img: DynamicImage, scale: f64, invert: bool, threshold: u8) -> String {
+#[derive(Clone, Debug)]
+pub struct ProgramOptions {
+    pub filename: String,
+    pub scale: f32,
+    pub invert: bool,
+    pub threshold: f32,
+    pub canny: bool,
+    pub debug: bool,
+    pub sigma: f32,
+    pub use_existing: bool,
+}
+
+pub fn run(img: DynamicImage, options: ProgramOptions) -> String {
+    let ProgramOptions {
+        scale,
+        canny,
+        debug,
+        threshold,
+        sigma,
+        use_existing,
+        ..
+    } = options;
+
     let (x, y) = img.dimensions();
-    let (x, y) = (x as f64 * scale, y as f64 * scale);
+    let (x, y) = (x as f32 * scale, y as f32 * scale);
     let (x, y) = (x as u32, y as u32);
 
-    let resized = img.resize(x, y, FilterType::Lanczos3);
+    let to_use = if !use_existing {
+        let img = img.grayscale();
+        if debug {
+            let _ = img.save("grayscale.png");
+        }
+        if canny {
+            let canny = edge_detection::canny(
+                img.as_luma8().cloned().unwrap(),
+                sigma,
+                (1.0 + threshold) / 2.0, // doesn't actually matter, just bigger than strong
+                threshold,
+            )
+            .as_image();
+            if debug {
+                let _ = canny.save("canny.png");
+            }
+            canny.grayscale()
+        } else {
+            img
+        }
+    } else {
+        img.grayscale()
+    };
+
+    let resized = to_use.resize(x, y, FilterType::Lanczos3);
     let resized = resize_to_mod_braille(resized);
 
-    let grayscale = resized.grayscale();
-
-    let braille = to_braille(&grayscale, invert, threshold);
+    let braille = to_braille(&resized, options);
     braille.into()
 }
 
@@ -58,7 +102,14 @@ fn resize_to_mod_braille(img: DynamicImage) -> DynamicImage {
     }
 }
 
-fn to_braille(img: &DynamicImage, invert: bool, threshold: u8) -> BasicMatrix<BrailleChar> {
+fn to_braille(img: &DynamicImage, options: ProgramOptions) -> BasicMatrix<BrailleChar> {
+    let ProgramOptions {
+        invert,
+        threshold,
+        canny,
+        ..
+    } = options;
+
     let (img_x, img_y) = img.dimensions();
     let mut matrix: BasicMatrix<BrailleChar> =
         BasicMatrix::generate(img_x as usize / 2, img_y as usize / 4, |_, _| {
@@ -68,6 +119,8 @@ fn to_braille(img: &DynamicImage, invert: bool, threshold: u8) -> BasicMatrix<Br
 
     let (m, n) = matrix.dimensions();
     let luma8 = img.as_luma8().unwrap();
+
+    let threshold = if canny { 0 } else { threshold as u8 };
 
     for m_i in 0..m {
         for m_j in 0..n {
