@@ -38,7 +38,7 @@ pub fn run(img: DynamicImage, options: ProgramOptions) -> String {
     let (x, y) = (x as f32 * scale, y as f32 * scale);
     let (x, y) = (x as u32, y as u32);
 
-    let to_use = if !use_existing {
+    let to_use = if !use_existing || !canny {
         let img = img.grayscale();
         if debug {
             let _ = img.save("grayscale.png");

@@ -14,12 +14,12 @@ fn main() {
         .arg(
             Arg::new("INPUT")
                 .long_about("Sets the input file to use")
-                .required_unless_present("use-existing-canny")
+                .required_unless_present("use-existing")
         )
         .arg(
-            Arg::new("use-existing-canny")
-                .long("use-existing-canny")
-                .requires("canny")
+            Arg::new("use-existing")
+                .long("use-existing")
+                .required(false)
                 .long_about("Uses the existing canny dump generated with --debug instead of calculating it again.
 This is useful if you want to tinker with the settings and not have it take a long time every run.
 INPUT must not be present with this flag.")
@@ -52,21 +52,21 @@ When used with --canny, this instead becomes the weak threshold, which must be b
                 .takes_value(true)
         )
         .arg(
-            Arg::new("canny")
-                .long("canny")
-                .long_about("Specifies that the image should be processed using canny edge-detection with built-in parameters.")
-                .conflicts_with("threshold")
-        )
-        .arg(
             Arg::new("debug")
                 .long("debug")
         )
         .arg(
             Arg::new("sigma")
                 .long("sigma")
-                .requires("canny")
+                .required(false)
                 .default_value("4.0")
                 .long_about("Sets the sigma value to use with canny edge-detection. Recommended values are between 3.0 and 6.0.")
+        )
+        .arg(
+            Arg::new("canny")
+                .long("canny")
+                .long_about("Specifies that the image should be processed using canny edge-detection with built-in/provided parameters.")
+                .required(false)
         )
         .get_matches();
 
@@ -106,7 +106,7 @@ When used with --canny, this instead becomes the weak threshold, which must be b
         .parse()
         .unwrap_or_exit("invalid sigma", -4);
 
-    let use_existing = matches.is_present("use-existing-canny");
+    let use_existing = matches.is_present("use-existing");
 
     let img = braille_image::get_image(filename)
         .unwrap_or_exit("Couldn't find file or file is not an image.", -5);
