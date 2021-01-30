@@ -42,9 +42,7 @@ args:
             When used with --canny, this instead becomes the weak threshold, which must be between 0.0 and 1.0 .
                 
         default_value_if:
-            - canny
-            - null
-            - "0.1"
+            - [canny, null, "0.1"]
         default_value: "127"
         takes_value: true
 
@@ -53,7 +51,7 @@ args:
   
     - sigma:
         long: sigma
-        default_value: "0.4"
+        default_value: "4.0"
         long_about: |-
             Sets the sigma value to use with canny edge-detection.
             Recommended values are between 3.0 and 6.0.
