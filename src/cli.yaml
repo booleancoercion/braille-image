@@ -1,0 +1,59 @@
+name: Braille Art Generator
+version: "0.1.1"
+author: boolean_coercion <booleancoercion@gmail.com>
+about: Generates Unicode art from images using braille characters.
+args:
+  - INPUT:
+    long_about: Sets the input file to use
+    required_unless_present: use-existing
+  
+  - use-existing:
+    long: use-existing
+    long_about: |-
+      Uses the existing canny dump generated with --debug instead of calculating it again.
+      This is useful if you want to tinker with the settings and not have it take a long time every run.
+      INPUT must not be present with this flag.
+    conflicts_with:
+    - INPUT
+    - threshold
+    - debug
+    - sigma
+  
+  - scale:
+    short: s
+    long: scale
+    long_about: Sets the scale factor to use with the image. Must be a positive real number.
+    default_value: "1"
+    takes_value: true
+  
+  - invert:
+    short: i
+    long: invert
+    long_about: Inverts the image. This is used when you want to fill the bright spaces with dots instead of the dark ones.
+  
+  - threshold:
+    short: t
+    long: threshold
+    long_about: |-
+      Specifies the brightness threshold that determines whether a pixel will be converted to a dot or not.
+      Must be an integer between 0 and 255.
+
+      When used with --canny, this instead becomes the weak threshold, which must be between 0.0 and 1.0 .
+    # default_value_if:
+    # - canny: "0.1"
+    default_value: "127"
+    takes_value: true
+
+  - debug:
+    long: debug
+  
+  - sigma:
+    long: sigma
+    default_value: "0.4"
+    long_about: |-
+      Sets the sigma value to use with canny edge-detection.
+      Recommended values are between 3.0 and 6.0.
+  
+  - canny:
+    long: canny
+    long_about: Specifies that the image should be processed using canny edge-detection with built-in/provided parameters.
