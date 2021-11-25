@@ -1,5 +1,3 @@
-#![feature(assoc_char_funcs)]
-
 use image::imageops::FilterType;
 use image::io::Reader as ImageReader;
 use image::DynamicImage;
@@ -86,6 +84,7 @@ fn resize_to_mod_braille(img: DynamicImage) -> DynamicImage {
 
     let rem = y.rem_euclid(4);
     let y = if rem != 0 {
+        changed = true;
         if rem > 4 - rem {
             y + (4 - rem)
         } else {
@@ -111,6 +110,8 @@ fn to_braille(img: &DynamicImage, options: ProgramOptions) -> BasicMatrix<Braill
     } = options;
 
     let (img_x, img_y) = img.dimensions();
+    // the size of a braille character on screen is 2x4 pixels,
+    // so the matrix must be scaled accordingly.
     let mut matrix: BasicMatrix<BrailleChar> =
         BasicMatrix::generate(img_x as usize / 2, img_y as usize / 4, |_, _| {
             BrailleChar::default()
@@ -140,14 +141,14 @@ fn to_braille(img: &DynamicImage, options: ProgramOptions) -> BasicMatrix<Braill
     matrix
 }
 
-impl Into<String> for BasicMatrix<BrailleChar> {
-    fn into(self) -> String {
-        let (m, n) = self.dimensions();
+impl From<BasicMatrix<BrailleChar>> for String {
+    fn from(other: BasicMatrix<BrailleChar>) -> String {
+        let (m, n) = other.dimensions();
         let mut output = String::with_capacity(4 * m * n + m); // no. of braille chars + no. of newlines
 
         for j in 0..n {
             for i in 0..m {
-                output.push(self[(i, j)].into());
+                output.push(other[(i, j)].into());
             }
             if j != n - 1 {
                 output.push('\n');

@@ -9,6 +9,7 @@ fn main() {
     let yaml = load_yaml!("cli.yaml");
     let matches = App::from(yaml).get_matches();
 
+    // canny.png will only be used if the --use-existing flag is passed
     let filename = matches.value_of("INPUT").unwrap_or("canny.png");
     let scale: f32 = matches
         .value_of("scale")

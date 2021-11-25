@@ -62,22 +62,26 @@ pub struct BrailleChar {
     pub bits: [[bool; 4]; 2],
 }
 
-impl Into<char> for BrailleChar {
-    fn into(self) -> char {
+impl From<BrailleChar> for char {
+    fn from(other: BrailleChar) -> char {
         let mut base: u32 = 0x2800;
-        base += self.bits[0][0] as u32;
-        base += (self.bits[0][1] as u32) << 1;
-        base += (self.bits[0][2] as u32) << 2;
-        base += (self.bits[1][0] as u32) << 3;
-        base += (self.bits[1][1] as u32) << 4;
-        base += (self.bits[1][2] as u32) << 5;
-        base += (self.bits[0][3] as u32) << 6;
-        base += (self.bits[1][3] as u32) << 7;
+        base += other.bits[0][0] as u32;
+        base += (other.bits[0][1] as u32) << 1;
+        base += (other.bits[0][2] as u32) << 2;
+        base += (other.bits[1][0] as u32) << 3;
+        base += (other.bits[1][1] as u32) << 4;
+        base += (other.bits[1][2] as u32) << 5;
+        base += (other.bits[0][3] as u32) << 6;
+        base += (other.bits[1][3] as u32) << 7;
 
         if base == 0x2800 {
+            // the empty braille char has alignment issues,
+            // so we convert it into the first non-empty one instead
             base += 1;
         }
 
-        char::from_u32(base).unwrap()
+        // SAFETY: the only possible values of `base` are definitely valid UTF-8 characters
+        // corresponding to braille.
+        unsafe { char::from_u32_unchecked(base) }
     }
 }
